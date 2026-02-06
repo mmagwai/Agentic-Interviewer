@@ -1,20 +1,27 @@
 analyze_cv_task:
   description: >
-    Analyze the following CV text:
+    Analyze the CV text below and extract:
+    - total years of experience
+    - experience level (Junior / Intermediate / Senior)
+    - tech stack
 
+    CV:
     {cv_text}
 
-    Determine:
-    - total years of experience
-    - experience level based on:
-      - 0–1 years → Junior
-      - 2–4 years → Intermediate
-      - 5+ years → Senior
-    - tech stack, if a framework is given specify the underlying core programming language
-
-    Be concise and accurate.
   expected_output: >
-    Years of Experience:
-    Experience Level:
-    Tech Stack:
+    A structured analysis of the candidate's experience and skills.
   agent: cv_analyzer
+
+
+generate_interview_questions:
+  description: >
+    Generate 7–10 interview questions for the selected technology: {selected_tech}.
+
+    Tailor the difficulty and depth based on the candidate’s experience level
+    inferred from the CV analysis.
+
+  expected_output: >
+    A numbered list of interview questions appropriate for the candidate.
+  agent: interviewer
+  context:
+    - analyze_cv_task
