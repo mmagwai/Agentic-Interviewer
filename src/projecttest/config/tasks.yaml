@@ -30,6 +30,7 @@ generate_interview_questions:
     - Generate 7–10 interview questions
     - Tailor difficulty based on the candidate’s experience level
     - Keep questions practical and role-appropriate
+    - Do not be strict with regards to key words, just check for basic undertanding
 
   expected_output: >
     Either:
@@ -39,3 +40,4 @@ generate_interview_questions:
   agent: interviewer
   context:
     - analyze_cv_task
+
