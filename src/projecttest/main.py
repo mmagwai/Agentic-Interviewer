@@ -1,25 +1,13 @@
-#!/usr/bin/env python
-import sys
-import warnings
-
-from datetime import datetime
-
-
-warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
-
 from projecttest.crew import InterviewCrew
+from projecttest.utils.file_reader import read_cv_file
 
 def run():
-    cv_text = input("Paste candidate CV text:\n")
+    cv_path = input("Enter path to CV file (PDF/DOCX/TXT):\n").strip()
+
+    cv_text = read_cv_file(cv_path)
 
     crew = InterviewCrew().crew()
-    result = crew.kickoff(
-        inputs={"cv_text": cv_text}
-    )
+    result = crew.kickoff(inputs={"cv_text": cv_text})
 
-    print("\n=== FINAL OUTPUT ===\n")
+    print("\n=== ANALYSIS RESULT ===")
     print(result)
-
-
-if __name__ == "__main__":
-    run()

@@ -1,17 +1,20 @@
 analyze_cv_task:
   description: >
-    Analyze the provided CV text.
+    Analyze the following CV text:
 
-    You must:
-    1. Identify total years of professional experience
-    2. Classify the candidate as Junior (1–2), Intermediate (3–5), or Senior (5+)
-    3. Extract a list of technical skills / tech stacks. If you are given a framework you should be able to point out the core programming language.
-
-    CV TEXT:
     {cv_text}
+
+    Determine:
+    - total years of experience
+    - experience level based on:
+      - 0–1 years → Junior
+      - 2–4 years → Intermediate
+      - 5+ years → Senior
+    - tech stack, if a framework is given specify the underlying core programming language
+
+    Be concise and accurate.
   expected_output: >
-    A clear summary containing:
-    - Years of experience (number)
-    - Experience level (Junior / Intermediate / Senior)
-    - Bullet list of tech stacks
+    Years of Experience:
+    Experience Level:
+    Tech Stack:
   agent: cv_analyzer
