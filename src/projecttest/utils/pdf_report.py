@@ -13,7 +13,9 @@ def generate_report(
     interview_score,
     total_questions,
     coding_result,
+    interview_feedback,
 ):
+
     """
     Generate recruiter-friendly PDF report.
     """
@@ -43,6 +45,15 @@ def generate_report(
     story.append(
         Paragraph(f"Score: {interview_score} / {total_questions}", style)
     )
+    story.append(Spacer(1, 20))
+    # ================= INTERVIEW FEEDBACK =================
+    story.append(Paragraph("<b>Interview Feedback</b>", styles['Heading2']))
+    story.append(Spacer(1, 12))
+
+    for line in interview_feedback.split("\n"):
+        if line.strip():
+            story.append(Paragraph(line, style))
+
     story.append(Spacer(1, 20))
 
     # ================= CODING RESULT =================

@@ -16,6 +16,45 @@ def get_task_output(result, task_name):
             return task.raw.strip()
     return ""
 
+# =====================================================
+# INTERVIEW PERFORMANCE SUMMARY
+# =====================================================
+def generate_interview_feedback(questions, answers):
+    interviewer = Agent(
+        role="Senior Technical Interviewer",
+        goal="Summarize candidate interview performance",
+        backstory="You write professional hiring recommendations.",
+        verbose=False
+    )
+
+    qa_text = ""
+    for i, (q, a) in enumerate(zip(questions, answers), start=1):
+        qa_text += f"Q{i}: {q}\nA{i}: {a}\n\n"
+
+    task = Task(
+        description=f"""
+        Based on the interview below, provide:
+
+        Strengths:
+        Weaknesses:
+        Recommendation: (Hire / No Hire / Next Round)
+
+        Interview:
+        {qa_text}
+        """,
+        agent=interviewer,
+        expected_output="Professional evaluation"
+    )
+
+    crew = Crew(
+        agents=[interviewer],
+        tasks=[task],
+        verbose=False
+    )
+
+    result = crew.kickoff()
+    return result.raw
+
 
 # =====================================================
 # MAIN PIPELINE
@@ -49,10 +88,13 @@ def run():
 
     questions = [q for q in output.split("\n") if q.strip()]
     score = 0
+    answers = []  
+
 
     for idx, question in enumerate(questions, start=1):
         print(f"\nQuestion {idx}: {question}")
         answer = input("Your answer: ")
+        answers.append(answer) 
 
         if evaluate_answer(question, answer):
             print("Acceptable answer")
@@ -61,6 +103,7 @@ def run():
             print("Incorrect answer")
 
     print(f"\nFinal Score: {score}/{len(questions)}")
+    interview_feedback = generate_interview_feedback(questions, answers)
 
     # =====================================================
     # ================ CODING CHALLENGE ===================
@@ -140,11 +183,12 @@ def run():
         selected_tech=selected_tech,
         interview_score=score,
         total_questions=len(questions),
-        coding_result=grade_raw
+        coding_result=grade_raw,
+        interview_feedback=interview_feedback
     )
 
 
-    print("\n✅ PDF report generated: interview_report.pdf")
+    print("\n PDF report generated: interview_report.pdf")
 
 
 # =====================================================
