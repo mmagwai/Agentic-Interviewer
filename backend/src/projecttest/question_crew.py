@@ -20,19 +20,19 @@ class QuestionCrew:
             config=self.tasks_config["generate_interview_questions"]
         )
 
-    @task
-    def generate_coding_challenge(self) -> Task:
-        return Task(
-            config=self.tasks_config["generate_coding_challenge"]
-        )
+    # @task
+    # def generate_coding_challenge(self) -> Task:
+    #     return Task(
+    #         config=self.tasks_config["generate_coding_challenge"]
+    #     )
 
     @crew
     def crew(self) -> Crew:
         return Crew(
             agents=[self.interviewer()],
             tasks=[
-                self.generate_interview_questions(),
-                self.generate_coding_challenge(),
+                self.generate_interview_questions()
+                #self.generate_coding_challenge(),
             ],
             verbose=True
         )

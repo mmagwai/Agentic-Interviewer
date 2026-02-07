@@ -16,7 +16,7 @@ export const startInterviewApi = async (file: File, tech: string) => {
   formData.append("file", file);
   formData.append("selected_tech", tech);
 
-  const res = await fetch("http://127.0.0.1:8000/start-interview", {
+  const res = await fetch("http://127.0.0.1:8000/questions", {
     method: "POST",
     body: formData,
   });
