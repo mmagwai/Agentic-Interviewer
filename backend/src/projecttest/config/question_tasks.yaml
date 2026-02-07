@@ -1,0 +1,27 @@
+generate_interview_questions:
+  description: >
+    The user selected the following technology:
+    {selected_tech}
+
+    IMPORTANT RULES:
+    - ONLY generate interview questions if the selected technology
+      exists in the extracted tech stack from the CV analysis.
+    - If the selected technology does NOT appear in the CV,
+      respond with exactly:
+      "Selected technology not found in CV."
+    - Comparison should be case-insensitive.
+
+    If the technology is valid:
+    - Generate 7–10 interview questions
+    - Tailor difficulty based on the candidate’s experience level
+    - Keep questions practical and role-appropriate
+    - Do not be strict with regards to key words, just check for basic undertanding
+
+  expected_output: >
+    Either:
+    - "Selected technology not found in CV."
+    OR
+    - A numbered list of interview questions appropriate for the candidate.
+  agent: interviewer
+  context:
+    - analyze_cv_task

@@ -1,33 +1,29 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
-
 import shutil
 import os
 import json
 import sys
 
-# allow imports from src/
 sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
 
-from projecttest.crew import InterviewCrew
-from projecttest.utils.file_reader import read_cv_file
+from projecttest.analysis_crew import CVAnalysisCrew
+from projecttest.question_crew import QuestionCrew
 
 
-# =====================================================
-# CREATE FASTAPI APP
-# =====================================================
+
 app = FastAPI()
-
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # allow all for development
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"],)
-# =====================================================
-# Helper: safely get task output
-# =====================================================
+    allow_headers=["*"],
+)
+
+
+# helper
 def get_task_output(result, task_name):
     for task in result.tasks_output:
         if task.name == task_name:
@@ -36,47 +32,62 @@ def get_task_output(result, task_name):
 
 
 # =====================================================
-# ANALYZE CV → send data to React
+# 1️ ANALYZE CV
 # =====================================================
 @app.post("/analyze-cv")
 async def analyze_cv(file: UploadFile = File(...)):
     temp_path = f"temp_{file.filename}"
 
-    # save uploaded file
     with open(temp_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    # read CV
+    from projecttest.utils.file_reader import read_cv_file
     cv_text = read_cv_file(temp_path)
 
-    # run crew
-    crew = InterviewCrew().crew()
-    result = crew.kickoff(
-        inputs={
-            "cv_text": cv_text,
-            "selected_tech": ""  # not needed yet
-        }
-    )
+    crew = CVAnalysisCrew().crew()
+    result = crew.kickoff(inputs={"cv_text": cv_text})
 
     analysis = get_task_output(result, "analyze_cv_task")
 
-    print("\n========= RAW ANALYSIS =========")
-    print(analysis)
-    print("================================\n")
-
-    # -------------------------------------------------
-    # SAFETY → React must ALWAYS get valid JSON
-    # -------------------------------------------------
     try:
         data = json.loads(analysis)
-    except Exception:
+    except:
         data = {
             "candidate_name": "Unknown",
             "experience_level": "Unknown",
             "tech_stack": []
         }
 
-    # cleanup
     os.remove(temp_path)
-
     return data
+
+
+# =====================================================
+# 2️ GENERATE QUESTIONS
+# =====================================================
+@app.post("/questions")
+async def questions(
+    file: UploadFile = File(...),
+    selected_tech: str = Form(...)
+):
+    temp_path = f"temp_{file.filename}"
+
+    with open(temp_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    from projecttest.utils.file_reader import read_cv_file
+    cv_text = read_cv_file(temp_path)
+
+    crew = QuestionCrew().crew()
+    result = crew.kickoff(
+        inputs={
+            "cv_text": cv_text,
+            "selected_tech": selected_tech
+        }
+    )
+
+    raw = get_task_output(result, "generate_interview_questions")
+    questions = [q for q in raw.split("\n") if q.strip()]
+
+    os.remove(temp_path)
+    return {"questions": questions}
