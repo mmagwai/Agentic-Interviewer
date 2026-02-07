@@ -25,6 +25,13 @@ class InterviewCrew:
             config=self.agents_config["interviewer"],
             verbose=True
         )
+    @agent
+    def answer_grader(self) -> Agent:
+        return Agent(
+            config=self.agents_config["answer_grader"],
+            verbose=True
+        )
+
     @task
     def analyze_cv_task(self) -> Task:
         return Task(
@@ -36,16 +43,24 @@ class InterviewCrew:
         return Task(
             config=self.tasks_config["generate_interview_questions"]
         )    
+    @task
+    def generate_coding_challenge(self) -> Task:
+        return Task(
+            config=self.tasks_config["generate_coding_challenge"]
+        )
 
     @crew
     def crew(self) -> Crew:
         return Crew(
             agents=[
                 self.cv_analyzer(),
-                self.interviewer()
-                    ],
+                self.interviewer(),
+                self.answer_grader()
+            ],
             tasks=[
                 self.analyze_cv_task(),
-                self.generate_interview_questions()],
+                self.generate_interview_questions(),
+                self.generate_coding_challenge()
+            ],
             verbose=True
         )

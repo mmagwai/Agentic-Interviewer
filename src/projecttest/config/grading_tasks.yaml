@@ -1,0 +1,25 @@
+grade_coding_solution:
+  description: |
+    Evaluate the candidate's submitted code.
+
+    Problem:
+    {{problem}}
+
+    Candidate Solution:
+    {{candidate_code}}
+
+    Provide:
+    - score from 0 to 10
+    - pass or fail
+    - short improvement feedback
+
+  expected_output: |
+    JSON format:
+    {
+      "score": number,
+      "verdict": "pass" or "fail",
+      "feedback": "text"
+    }
+
+  agent: answer_grader
+

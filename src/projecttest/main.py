@@ -1,12 +1,24 @@
 from projecttest.crew import InterviewCrew
 from projecttest.utils.file_reader import read_cv_file
 from crewai import Agent, Task, Crew
+from projecttest.grading_crew import GradingCrew
+
 import json
+
+def get_task_output(result, task_name):
+    for task in result.tasks_output:
+        if task.name == task_name:
+            return task.raw.strip()
+    return ""
 
 
 def run():
     cv_path = input("Enter path to CV file:\n").strip()
     cv_text = read_cv_file(cv_path)
+
+    # =====================================================
+    # ================= INTERVIEW =========================
+    # =====================================================
 
     while True:
         selected_tech = input("\nEnter technology to be interviewed on:\n").strip()
@@ -19,7 +31,9 @@ def run():
             }
         )
 
-        output = result.raw.strip()
+        # ✅ explicitly get questions
+        output = get_task_output(result, "generate_interview_questions")
+
 
         if output == "Selected technology not found in CV.":
             print("Technology not found. Try again.")
@@ -42,6 +56,47 @@ def run():
             print("Incorrect answer")
 
     print(f"\nFinal Score: {score}/{len(questions)}")
+
+    # =====================================================
+    # ================ CODING CHALLENGE ===================
+    # =====================================================
+
+    print("\n\n=== CODING CHALLENGE ===\n")
+
+    challenge = get_task_output(result, "generate_coding_challenge")
+
+
+    if challenge == "No coding challenge for this technology.":
+        print(challenge)
+        return
+
+    print(challenge)
+
+    # Ask candidate for solution file
+    solution_path = input("\nEnter path to your solution file:\n").strip()
+
+    try:
+        with open(solution_path, "r", encoding="utf-8") as f:
+            candidate_code = f.read()
+    except Exception:
+        print("Could not read file.")
+        return
+
+    # =====================================================
+    # ================== CODE GRADING =====================
+    # =====================================================
+
+    grading_crew = GradingCrew().crew()
+
+    grading_result = grading_crew.kickoff(
+        inputs={
+            "candidate_code": candidate_code,
+            "problem": challenge
+        }
+    )
+
+    print("\n=== CODE EVALUATION ===\n")
+    print(grading_result.raw)
 
 
 def evaluate_answer(question, answer):
@@ -96,4 +151,5 @@ def evaluate_answer(question, answer):
 
 
 if __name__ == "__main__":
+
     run()

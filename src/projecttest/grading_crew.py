@@ -5,7 +5,7 @@ from crewai.project import CrewBase, agent, crew, task
 @CrewBase
 class GradingCrew:
     agents_config = "config/agents.yaml"
-    tasks_config = "config/tasks.yaml"
+    tasks_config = "config/grading_tasks.yaml"  
 
     @agent
     def answer_grader(self) -> Agent:
@@ -15,15 +15,15 @@ class GradingCrew:
         )
 
     @task
-    def grade_answer_task(self) -> Task:
+    def grade_coding_solution(self) -> Task:    
         return Task(
-            config=self.tasks_config["grade_answer_task"]
+            config=self.tasks_config["grade_coding_solution"]
         )
 
     @crew
     def crew(self) -> Crew:
         return Crew(
             agents=[self.answer_grader()],
-            tasks=[self.grade_answer_task()],
+            tasks=[self.grade_coding_solution()],
             verbose=False
         )
