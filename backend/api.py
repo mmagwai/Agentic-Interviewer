@@ -14,7 +14,7 @@ from projecttest.utils.file_reader import read_cv_file
 from projecttest.evaluation_crew import EvaluationCrew
 from projecttest.grading_crew import GradingCrew
 from projecttest.challenge_crew import ChallengeCrew
-
+from projecttest.utils.pdf_report import generate_report
 
 
 # =====================================================
@@ -29,6 +29,18 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# =====================================================
+# TEMP MEMORY (replace with DB later)
+# =====================================================
+INTERVIEW_CONTEXT = {
+    "candidate_name": "",
+    "experience_level": "",
+    "selected_tech": "",
+    "interview_score": 0,
+    "total_questions": 0,
+    "interview_feedback": "",
+}
 
 
 # =====================================================
@@ -49,20 +61,16 @@ async def analyze_cv(file: UploadFile = File(...)):
     temp_path = f"temp_{file.filename}"
 
     try:
-        # save file
         with open(temp_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-        # read text
         cv_text = read_cv_file(temp_path)
 
-        # run crew
         crew = CVAnalysisCrew().crew()
         result = crew.kickoff(inputs={"cv_text": cv_text})
 
         raw = get_task_output(result, "analyze_cv_task")
 
-        # parse JSON safely
         try:
             data = json.loads(raw)
         except Exception:
@@ -71,6 +79,10 @@ async def analyze_cv(file: UploadFile = File(...)):
                 "experience_level": "Unknown",
                 "tech_stack": [],
             }
+
+        # ✅ SAVE FOR PDF
+        INTERVIEW_CONTEXT["candidate_name"] = data.get("candidate_name", "")
+        INTERVIEW_CONTEXT["experience_level"] = data.get("experience_level", "")
 
         return data
 
@@ -90,14 +102,11 @@ async def generate_questions(
     temp_path = f"temp_{file.filename}"
 
     try:
-        # save file
         with open(temp_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-        # read CV
         cv_text = read_cv_file(temp_path)
 
-        # run crew
         crew = QuestionCrew().crew()
         result = crew.kickoff(
             inputs={
@@ -108,27 +117,22 @@ async def generate_questions(
 
         raw = get_task_output(result, "generate_interview_questions")
 
-        # ===============================
-        # If tech not found
-        # ===============================
         if "not found" in raw.lower():
             return {
                 "questions": [],
                 "message": "Selected technology not found in CV.",
             }
 
-        # ===============================
-        # Clean numbering
-        # ===============================
         cleaned = []
         for line in raw.split("\n"):
             line = line.strip()
-
-            # remove numbering: 1.  2)  - etc
             line = line.lstrip("0123456789.-) ")
-
             if line:
                 cleaned.append(line)
+
+        # ✅ SAVE FOR PDF
+        INTERVIEW_CONTEXT["selected_tech"] = selected_tech
+        INTERVIEW_CONTEXT["total_questions"] = len(cleaned)
 
         return {
             "questions": cleaned,
@@ -139,6 +143,10 @@ async def generate_questions(
         if os.path.exists(temp_path):
             os.remove(temp_path)
 
+
+# =====================================================
+# 3️⃣ EVALUATE ANSWER
+# =====================================================
 @app.post("/evaluate-answer")
 async def evaluate_answer(
     question: str = Form(...),
@@ -164,36 +172,44 @@ async def evaluate_answer(
             "correct": False
         }
 
+    # ✅ accumulate score
+    INTERVIEW_CONTEXT["interview_score"] += int(data.get("score", 0))
+
+    # ✅ accumulate feedback
+    INTERVIEW_CONTEXT["interview_feedback"] += (
+        f"Q: {question}\n"
+        f"A: {answer}\n"
+        f"Score: {data.get('score', 0)}\n"
+        f"Feedback: {data.get('feedback', '')}\n\n"
+    )
+
     return data
 
+
 # =====================================================
-# 3️⃣ GENERATE CODING CHALLENGE
+# 4️⃣ GENERATE CODING CHALLENGE
 # =====================================================
 @app.post("/coding-challenge")
 async def coding_challenge(
     file: UploadFile = File(...),
     selected_tech: str = Form(...),
     experience_level: str = Form(...)
-
 ):
     temp_path = f"temp_{file.filename}"
 
     try:
-        # save file
         with open(temp_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-        # read CV
         cv_text = read_cv_file(temp_path)
 
-        # run crew
         crew = ChallengeCrew().crew()
 
         result = crew.kickoff(
             inputs={
                 "selected_tech": selected_tech,
                 "cv_text": cv_text,
-                 "experience_level": experience_level,
+                "experience_level": experience_level,
             }
         )
 
@@ -209,9 +225,8 @@ async def coding_challenge(
             os.remove(temp_path)
 
 
-
 # =====================================================
-# 4️⃣ GRADE CODE SUBMISSION
+# 5️⃣ GRADE CODE SUBMISSION
 # =====================================================
 @app.post("/grade-code")
 async def grade_code(
@@ -247,10 +262,24 @@ async def grade_code(
                 "feedback": "Could not evaluate code"
             }
 
+        # ============================================
+        # 🎯 AUTO GENERATE PDF HERE
+        # ============================================
+        output_path = "interview_report.pdf"
+
+        generate_report(
+            output_path=output_path,
+            candidate_name=INTERVIEW_CONTEXT["candidate_name"],
+            experience_level=INTERVIEW_CONTEXT["experience_level"],
+            selected_tech=INTERVIEW_CONTEXT["selected_tech"],
+            interview_score=INTERVIEW_CONTEXT["interview_score"],
+            total_questions=INTERVIEW_CONTEXT["total_questions"],
+            coding_result=data,
+            interview_feedback=INTERVIEW_CONTEXT["interview_feedback"],
+        )
+
         return data
 
     finally:
         if os.path.exists(temp_path):
             os.remove(temp_path)
-
-
