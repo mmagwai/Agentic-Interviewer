@@ -1,14 +1,15 @@
 import { useState } from "react";
 import type { Candidate } from "./types/candidate";
-import { analyzeCV, startInterviewApi } from "./services/api";
+import { analyzeCV, startInterviewApi, getCodingChallengeApi } from "./services/api";
+
 import UploadCV from "./components/UploadCV";
 import TechSelector from "./components/TechSelector";
 import Questions from "./components/Questions";
 import CodingChallenge from "./components/CodingChallenge";
-import { getCodingChallengeApi } from "./services/api";
-
 
 function App() {
+  const [step, setStep] = useState(1);   // STEP CONTROL
+
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [candidate, setCandidate] = useState<Candidate | null>(null);
@@ -16,64 +17,92 @@ function App() {
   const [questions, setQuestions] = useState<string[]>([]);
   const [challenge, setChallenge] = useState("");
 
-
+  // =============================
+  // STEP 1 → Upload CV
+  // =============================
   const handleUpload = async () => {
     if (!file) return;
+
     setLoading(true);
     try {
       const data = await analyzeCV(file);
       setCandidate(data);
+      setStep(2);   // move to tech selection
     } catch (err: any) {
       alert(err.message);
     }
     setLoading(false);
   };
 
-const startInterview = async (tech: string) => {
-  if (!file) return;
+  // =============================
+  // STEP 2 → Choose Tech
+  // =============================
+  const startInterview = async (tech: string) => {
+    if (!file) return;
 
-  setSelectedTech(tech);
-  setChallenge(""); // reset previous challenge
-  setQuestions([]);
+    setSelectedTech(tech);
+    setQuestions([]);
 
     try {
-      // 1️ Questions
       const data = await startInterviewApi(file, tech);
       setQuestions(data.questions || []);
-
+      setStep(3);   // move to questions
     } catch (err) {
       alert("Failed to start interview");
     }
   };
 
-const handleInterviewFinish = async () => {
-  if (!selectedTech || !candidate || !file) return;
+  // =============================
+  // STEP 3 → Interview Finished
+  // =============================
+  const handleInterviewFinish = async () => {
+    if (!selectedTech || !candidate || !file) return;
 
-  try {
-    const challengeData = await getCodingChallengeApi(
-      selectedTech,
-      candidate.experience_level,
-      file
-    );
+    try {
+      const challengeData = await getCodingChallengeApi(
+        selectedTech,
+        candidate.experience_level,
+        file
+      );
 
-    setChallenge(challengeData.challenge || "");
-  } catch (err) {
-    alert("Failed to load coding challenge");
-  }
-};
+      setChallenge(challengeData.challenge || "");
+      setStep(4);   // move to coding challenge
+    } catch (err) {
+      alert("Failed to load coding challenge");
+    }
+  };
 
-
-  return (
-    <div style={{ padding: 40 }}>
+return (
+  <div
+    style={{
+      minHeight: "100vh",
+      display: "flex",
+      justifyContent: "center",   // horizontal
+      alignItems: "center",       // vertical
+      flexDirection: "column",
+      paddingLeft: 350,
+    }}
+  >
+    <div
+      style={{
+        width: "100%",
+        maxWidth: 800,
+        textAlign: "center",
+      }}
+    >
       <h1>AI Technical Interviewer</h1>
 
-      <UploadCV
-        loading={loading}
-        onFileChange={setFile}
-        onUpload={handleUpload}
-      />
+      {/* ================= STEP 1 ================= */}
+      {step === 1 && (
+        <UploadCV
+          loading={loading}
+          onFileChange={setFile}
+          onUpload={handleUpload}
+        />
+      )}
 
-      {candidate && (
+      {/* ================= STEP 2 ================= */}
+      {step === 2 && candidate && (
         <>
           <h2>{candidate.candidate_name}</h2>
           <p>Level: {candidate.experience_level}</p>
@@ -86,11 +115,22 @@ const handleInterviewFinish = async () => {
         </>
       )}
 
-      <Questions questions={questions}  onFinish={handleInterviewFinish} />
-      <CodingChallenge challenge={challenge} />
+      {/* ================= STEP 3 ================= */}
+      {step === 3 && (
+        <Questions
+          questions={questions}
+          onFinish={handleInterviewFinish}
+        />
+      )}
 
+      {/* ================= STEP 4 ================= */}
+      {step === 4 && (
+        <CodingChallenge challenge={challenge} />
+      )}
     </div>
-  );
+  </div>
+);
+
 }
 
 export default App;

@@ -59,7 +59,9 @@ export default function Questions({ questions, onFinish }: Props) {
   // =====================
   if (finalScore !== null) {
     return (
-      <div style={{ marginTop: 40 }}>
+      <div       style={{
+  
+     }}>
         <h2>Interview Finished 🎉</h2>
         <p>
           Final Score: {finalScore} / {questions.length}
@@ -69,7 +71,11 @@ export default function Questions({ questions, onFinish }: Props) {
   }
 
   return (
-    <div style={{ marginTop: 40 }}>
+    <div     style={{
+      maxWidth: 1000,
+      margin: "auto",
+     width: "100%"
+    }} >
       <h3>
         Question {current + 1} of {questions.length}
       </h3>

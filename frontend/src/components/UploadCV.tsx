@@ -6,7 +6,7 @@ interface Props {
 
 export default function UploadCV({ loading, onFileChange, onUpload }: Props) {
   return (
-    <>
+    <div style={{width: "1000px"}}>
       <input
         type="file"
         accept=".pdf,.doc,.docx,.txt"
@@ -16,6 +16,6 @@ export default function UploadCV({ loading, onFileChange, onUpload }: Props) {
       <button onClick={onUpload} disabled={loading}>
         {loading ? "Analyzing..." : "Upload CV"}
       </button>
-    </>
+    </div>
   );
 }
