@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { evaluateAnswerApi } from "../services/api";
+import "../App.css";
 
 interface Props {
   questions: string[];
@@ -26,6 +27,8 @@ export default function Questions({ questions, onFinish }: Props) {
       alert("Please type an answer");
       return;
     }
+
+    if (loading) return; // extra safety
 
     setLoading(true);
 
@@ -58,8 +61,8 @@ export default function Questions({ questions, onFinish }: Props) {
   // =====================
   if (finalScore !== null) {
     return (
-      <div style={{ width: "100%" }}>
-        <h2>Interview Finished</h2>
+      <div className="questionsContainer">
+        <h2>Interview Finished 🎉</h2>
         <p>
           Final Score: {finalScore} / {questions.length}
         </p>
@@ -68,56 +71,11 @@ export default function Questions({ questions, onFinish }: Props) {
   }
 
   return (
-    <div
-      style={{
-        maxWidth: 1000,
-        margin: "auto",
-        width: "100%",
-      }}
-    >
-      {/* =====================
-          ANIMATION DEFINITION
-         ===================== */}
-      <style>
-        {`
-          @keyframes slideIn {
-            from {
-              opacity: 0;
-              transform: translateX(20px);
-            }
-            to {
-              opacity: 3;
-              transform: translateX(0);
-            }
-          }
-        `}
-      </style>
-      <style>
-        {`
-            @keyframes dropIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-            }
-        `}
-        </style>
-
-
+    <div className="questionsContainer">
       {/* =====================
           QUESTION BLOCK
-          key = re-mounts on change
          ===================== */}
-      <div
-        key={current}
-        style={{
-          animation: "slideIn 0.35s ease",
-        }}
-      >
+      <div key={current} className="questionBlock">
         <h3>
           Question {current + 1} of {questions.length}
         </h3>
@@ -126,17 +84,7 @@ export default function Questions({ questions, onFinish }: Props) {
 
         <textarea
           rows={6}
-          style={{
-            width: "100%",
-            marginTop: 10,
-            padding: "12px",
-            borderRadius: "10px",
-            border: "3px solid #d0d5dd",
-            boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
-            resize: "none",
-            fontSize: "14px",
-            outline: "none",
-          }}
+          className="answerInput"
           placeholder="Type your answer here..."
           value={answers[current] || ""}
           onChange={(e) => updateAnswer(e.target.value)}
@@ -154,22 +102,13 @@ export default function Questions({ questions, onFinish }: Props) {
             <b>Score:</b> {grade.score} / 1
           </p>
 
-        <div
-        style={{
-            marginTop: 20,
-            borderRadius: "20px",
-            backgroundColor: "rgb(241, 242, 245)",
-            padding: "15px",
-
-            animation: "dropIn 0.3s ease",
-        }}
-        >
-        <p>{grade.correct ? "Correct" : "Needs improvement"}</p>
-        <p>{grade.feedback}</p>
-        </div>
-
+          <div className="gradeCard">
+            <p>{grade.correct ? "Correct" : "Needs improvement"}</p>
+            <p>{grade.feedback}</p>
+          </div>
 
           <button
+            className="primaryButton"
             onClick={() => {
               setGrade(null);
 
@@ -181,7 +120,6 @@ export default function Questions({ questions, onFinish }: Props) {
                 onFinish(total);
               }
             }}
-            style={{ marginTop: 15, marginBottom: 15 }}
           >
             Continue
           </button>
@@ -192,8 +130,16 @@ export default function Questions({ questions, onFinish }: Props) {
            NEXT BUTTON
          ===================== */}
       {!grade && (
-        <button onClick={handleNext} style={{ marginTop: 10 }}>
-          {current === questions.length - 1 ? "Finish" : "Next"}
+        <button
+          className="primaryButton"
+          onClick={handleNext}
+          disabled={loading}
+        >
+          {loading
+            ? "..."
+            : current === questions.length - 1
+            ? "Finish"
+            : "Next"}
         </button>
       )}
     </div>

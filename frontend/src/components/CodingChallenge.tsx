@@ -30,6 +30,26 @@ export default function CodingChallenge({ challenge }: Props) {
     setLoading(false);
   };
 
+ 
+  // After grading we show only the result
+
+  if (result) {
+    return (
+      <div style={{ marginTop: 40 }}>
+        <h2>Challenge Result</h2>
+
+        <div className="gradeCard" style={{ marginBottom: "20px" }}>
+          <p>Score: {result.score}</p>
+          <p>{result.verdict}</p>
+          <p>{result.feedback}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // =============================
+  // NORMAL VIEW (before grading)
+  // =============================
   return (
     <div style={{ marginTop: 40 }}>
       <h2>Coding Challenge</h2>
@@ -48,7 +68,7 @@ export default function CodingChallenge({ challenge }: Props) {
 
       <input
         type="file"
-         className="fileInput"
+        className="fileInput"
         onChange={(e) => setFile(e.target.files?.[0] || null)}
         style={{ marginTop: 15 }}
       />
@@ -60,23 +80,6 @@ export default function CodingChallenge({ challenge }: Props) {
       </button>
 
       {loading && <p>Grading...</p>}
-    <div         style={{
-            marginTop: 20,
-            borderRadius: "20px",
-            backgroundColor: "rgb(241, 242, 245)",
-            padding: "15px",
-            paddingBottom: "15px",
-            marginBottom: "20px"
-        }}>
-      {result && (
-        <div style={{ marginTop: 20 }}>
-          <h3>Result</h3>
-          <p>Score: {result.score}</p>
-          <p>{result.verdict}</p>
-          <p>{result.feedback}</p>
-        </div>
-      )}
-      </div>
     </div>
   );
 }

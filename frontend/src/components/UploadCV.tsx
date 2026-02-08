@@ -8,7 +8,7 @@ interface Props {
 
 export default function UploadCV({ loading, onFileChange, onUpload }: Props) {
   return (
-    <div style={{width: "1000px"}}>
+    <div style={{width: "100%"}}>
     <input
     className="fileInput"
     type="file"

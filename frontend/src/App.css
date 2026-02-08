@@ -15,3 +15,85 @@
   background-color: #4338ca;
   transform: translateY(-1px);
 }
+/* =====================
+   Animations
+===================== */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes dropIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =====================
+   Layout
+===================== */
+.questionsContainer {
+  max-width: 1000px;
+  margin: auto;
+  width: 100%;
+}
+
+.questionBlock {
+  animation: slideIn 0.35s ease;
+}
+
+/* =====================
+   Textarea
+===================== */
+.answerInput {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 3px solid #d0d5dd;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  resize: none;
+  font-size: 14px;
+  outline: none;
+}
+
+/* =====================
+   Grade Card
+===================== */
+.gradeCard {
+  margin-top: 20px;
+  border-radius: 20px;
+  background-color: rgb(241, 242, 245);
+  padding: 15px;
+  animation: dropIn 0.3s ease;
+}
+
+/* =====================
+   Buttons
+===================== */
+.primaryButton {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  background: #4f46e5;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primaryButton:hover {
+  background: #4338ca;
+}

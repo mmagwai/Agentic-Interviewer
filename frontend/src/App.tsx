@@ -82,7 +82,7 @@ return (
       justifyContent: "center",   // horizontal
       alignItems: "center",       // vertical
       flexDirection: "column",
-      paddingLeft: 350,
+      paddingLeft: 400,
     }}
   >
     <div

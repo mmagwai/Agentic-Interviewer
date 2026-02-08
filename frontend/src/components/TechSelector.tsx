@@ -5,9 +5,11 @@ interface Props {
 }
 
 export default function TechSelector({ techs, selected, onSelect }: Props) {
+  // once a tech is chosen → lock the selector
+  const locked = selected !== null;
+
   return (
     <div>
-      {/* animation definition */}
       <style>
         {`
           @keyframes floatUp {
@@ -23,27 +25,39 @@ export default function TechSelector({ techs, selected, onSelect }: Props) {
         `}
       </style>
 
-      {techs.map((tech, index) => (
-        <button
-          key={tech}
-          onClick={() => onSelect(tech)}
-          style={{
-            margin: 5,
-            padding: 10,
-            background: selected === tech ? "#16a34a" : "#4f46e5",
-            color: "white",
-            border: "none",
-            borderRadius: 8,
+      {techs.map((tech, index) => {
+        const isSelected = selected === tech;
 
-            // animation magic
-            opacity: 0,
-            animation: `floatUp 0.4s ease forwards`,
-            animationDelay: `${index * 0.08}s`,
-          }}
-        >
-          {tech}
-        </button>
-      ))}
+        return (
+          <button
+            key={tech}
+            disabled={locked}
+            onClick={() => onSelect(tech)}
+            style={{
+              margin: 5,
+              padding: "10px 14px",
+              background: isSelected ? "#16a34a" : "#4f46e5",
+              color: "white",
+              border: "none",
+              borderRadius: 8,
+              fontWeight: 600,
+
+              // animation
+              opacity: 0,
+              animation: `floatUp 0.4s ease forwards`,
+              animationDelay: `${index * 0.08}s`,
+
+              // disabled UX
+              cursor: locked ? "not-allowed" : "pointer",
+
+              // fade others after selection
+              filter: locked && !isSelected ? "brightness(0.8)" : "none",
+            }}
+          >
+            {tech}
+          </button>
+        );
+      })}
     </div>
   );
 }
