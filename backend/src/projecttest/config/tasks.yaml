@@ -1,26 +1,19 @@
 generate_coding_challenge:
   description: >
-    The candidate selected the following technology:
+    The candidate selected the technology:
     {selected_tech}
 
-    DECIDE FIRST if this technology can be evaluated using a
-    programming exercise.
-
-    If the technology is something like:
-    cloud, devops, tooling, methodology, or anything
-    that does not require writing code,
-    respond EXACTLY with:
-    "No coding challenge for this technology."
-    If the chosen tech stack is a framework, generate a question 
-    based on the core language.
-
-    If the technology CAN be tested via programming:
-
-    Create ONE LeetCode-style challenge.
+    Candidate seniority level:
+    {experience_level}
 
     Difficulty rules:
     - Junior or Intermediate → EASY
     - Senior → MEDIUM
+
+    If the chosen tech stack is a framework,
+    generate a challenge based on the core language.
+
+    Create ONE LeetCode-style problem.
 
     Provide:
     - Clear problem statement
@@ -33,9 +26,5 @@ generate_coding_challenge:
     - "No coding challenge for this technology."
     OR
     - A full coding challenge.
+
   agent: interviewer
-  context:
-    - analyze_cv_task
-   
-
-

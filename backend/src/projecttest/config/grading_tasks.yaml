@@ -16,7 +16,7 @@ grade_coding_solution:
   expected_output: |
     JSON format:
     {
-      "score": number,
+      "score": 0 or 1,
       "verdict": "pass" or "fail",
       "feedback": "text"
     }

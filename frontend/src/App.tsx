@@ -4,6 +4,9 @@ import { analyzeCV, startInterviewApi } from "./services/api";
 import UploadCV from "./components/UploadCV";
 import TechSelector from "./components/TechSelector";
 import Questions from "./components/Questions";
+import CodingChallenge from "./components/CodingChallenge";
+import { getCodingChallengeApi } from "./services/api";
+
 
 function App() {
   const [file, setFile] = useState<File | null>(null);
@@ -11,6 +14,8 @@ function App() {
   const [candidate, setCandidate] = useState<Candidate | null>(null);
   const [selectedTech, setSelectedTech] = useState<string | null>(null);
   const [questions, setQuestions] = useState<string[]>([]);
+  const [challenge, setChallenge] = useState("");
+
 
   const handleUpload = async () => {
     if (!file) return;
@@ -24,17 +29,39 @@ function App() {
     setLoading(false);
   };
 
-  const startInterview = async (tech: string) => {
-    if (!file) return;
-    setSelectedTech(tech);
+const startInterview = async (tech: string) => {
+  if (!file) return;
+
+  setSelectedTech(tech);
+  setChallenge(""); // reset previous challenge
+  setQuestions([]);
 
     try {
+      // 1️ Questions
       const data = await startInterviewApi(file, tech);
       setQuestions(data.questions || []);
+
     } catch (err) {
       alert("Failed to start interview");
     }
   };
+
+const handleInterviewFinish = async () => {
+  if (!selectedTech || !candidate || !file) return;
+
+  try {
+    const challengeData = await getCodingChallengeApi(
+      selectedTech,
+      candidate.experience_level,
+      file
+    );
+
+    setChallenge(challengeData.challenge || "");
+  } catch (err) {
+    alert("Failed to load coding challenge");
+  }
+};
+
 
   return (
     <div style={{ padding: 40 }}>
@@ -59,7 +86,9 @@ function App() {
         </>
       )}
 
-      <Questions questions={questions} />
+      <Questions questions={questions}  onFinish={handleInterviewFinish} />
+      <CodingChallenge challenge={challenge} />
+
     </div>
   );
 }

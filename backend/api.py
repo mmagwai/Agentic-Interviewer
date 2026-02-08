@@ -12,6 +12,9 @@ from projecttest.analysis_crew import CVAnalysisCrew
 from projecttest.question_crew import QuestionCrew
 from projecttest.utils.file_reader import read_cv_file
 from projecttest.evaluation_crew import EvaluationCrew
+from projecttest.grading_crew import GradingCrew
+from projecttest.challenge_crew import ChallengeCrew
+
 
 
 # =====================================================
@@ -162,4 +165,92 @@ async def evaluate_answer(
         }
 
     return data
+
+# =====================================================
+# 3️⃣ GENERATE CODING CHALLENGE
+# =====================================================
+@app.post("/coding-challenge")
+async def coding_challenge(
+    file: UploadFile = File(...),
+    selected_tech: str = Form(...),
+    experience_level: str = Form(...)
+
+):
+    temp_path = f"temp_{file.filename}"
+
+    try:
+        # save file
+        with open(temp_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+        # read CV
+        cv_text = read_cv_file(temp_path)
+
+        # run crew
+        crew = ChallengeCrew().crew()
+
+        result = crew.kickoff(
+            inputs={
+                "selected_tech": selected_tech,
+                "cv_text": cv_text,
+                 "experience_level": experience_level,
+            }
+        )
+
+        raw = get_task_output(result, "generate_coding_challenge")
+
+        if "no coding challenge" in raw.lower():
+            return {"challenge": ""}
+
+        return {"challenge": raw}
+
+    finally:
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+
+
+
+# =====================================================
+# 4️⃣ GRADE CODE SUBMISSION
+# =====================================================
+@app.post("/grade-code")
+async def grade_code(
+    problem: str = Form(...),
+    file: UploadFile = File(...)
+):
+    temp_path = f"temp_{file.filename}"
+
+    try:
+        with open(temp_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+        with open(temp_path, "r", encoding="utf-8", errors="ignore") as f:
+            candidate_code = f.read()
+
+        crew = GradingCrew().crew()
+
+        result = crew.kickoff(
+            inputs={
+                "problem": problem,
+                "candidate_code": candidate_code
+            }
+        )
+
+        raw = get_task_output(result, "grade_coding_solution")
+
+        try:
+            data = json.loads(raw)
+        except:
+            data = {
+                "score": 0,
+                "verdict": "fail",
+                "feedback": "Could not evaluate code"
+            }
+
+        return data
+
+    finally:
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+
 

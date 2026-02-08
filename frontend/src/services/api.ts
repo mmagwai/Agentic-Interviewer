@@ -42,3 +42,41 @@ export const evaluateAnswerApi = async (
 
   return res.json();
 };
+
+export const getCodingChallengeApi = async (
+  tech: string,
+  level: string,
+  file: File
+) => {
+  const form = new FormData();
+  form.append("selected_tech", tech);
+  form.append("experience_level", level);
+  form.append("file", file);
+
+  const res = await fetch("http://localhost:8000/coding-challenge", {
+    method: "POST",
+    body: form,
+  });
+
+  if (!res.ok) throw new Error("Failed to generate challenge");
+  return res.json();
+};
+
+
+
+export const gradeCodeApi = async (
+  problem: string,
+  file: File
+) => {
+  const form = new FormData();
+  form.append("problem", problem);
+  form.append("file", file);
+
+  const res = await fetch("http://localhost:8000/grade-code", {
+    method: "POST",
+    body: form,
+  });
+
+  if (!res.ok) throw new Error("Grading failed");
+  return res.json();
+};

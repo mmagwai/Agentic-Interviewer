@@ -3,9 +3,11 @@ import { evaluateAnswerApi } from "../services/api";
 
 interface Props {
   questions: string[];
+  onFinish: (score: number) => void;
 }
 
-export default function Questions({ questions }: Props) {
+export default function Questions({ questions, onFinish }: Props) {
+
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<string[]>([]);
   const [grade, setGrade] = useState<any | null>(null);
@@ -102,6 +104,7 @@ export default function Questions({ questions }: Props) {
               } else {
                 const total = results.reduce((a, b) => a + b, 0);
                 setFinalScore(total);
+                onFinish(total); 
               }
             }}
             style={{ marginTop: 10 }}
