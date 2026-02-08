@@ -48,6 +48,7 @@ export default function CodingChallenge({ challenge }: Props) {
 
       <input
         type="file"
+         className="fileInput"
         onChange={(e) => setFile(e.target.files?.[0] || null)}
         style={{ marginTop: 15 }}
       />
@@ -59,7 +60,14 @@ export default function CodingChallenge({ challenge }: Props) {
       </button>
 
       {loading && <p>Grading...</p>}
-
+    <div         style={{
+            marginTop: 20,
+            borderRadius: "20px",
+            backgroundColor: "rgb(241, 242, 245)",
+            padding: "15px",
+            paddingBottom: "15px",
+            marginBottom: "20px"
+        }}>
       {result && (
         <div style={{ marginTop: 20 }}>
           <h3>Result</h3>
@@ -68,6 +76,7 @@ export default function CodingChallenge({ challenge }: Props) {
           <p>{result.feedback}</p>
         </div>
       )}
+      </div>
     </div>
   );
 }

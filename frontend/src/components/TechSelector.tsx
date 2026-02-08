@@ -7,7 +7,23 @@ interface Props {
 export default function TechSelector({ techs, selected, onSelect }: Props) {
   return (
     <div>
-      {techs.map((tech) => (
+      {/* animation definition */}
+      <style>
+        {`
+          @keyframes floatUp {
+            from {
+              opacity: 0;
+              transform: translateY(12px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+        `}
+      </style>
+
+      {techs.map((tech, index) => (
         <button
           key={tech}
           onClick={() => onSelect(tech)}
@@ -18,6 +34,11 @@ export default function TechSelector({ techs, selected, onSelect }: Props) {
             color: "white",
             border: "none",
             borderRadius: 8,
+
+            // animation magic
+            opacity: 0,
+            animation: `floatUp 0.4s ease forwards`,
+            animationDelay: `${index * 0.08}s`,
           }}
         >
           {tech}

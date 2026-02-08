@@ -19,9 +19,10 @@ generate_interview_questions:
         Python ≠ Django
 
     If valid:
-    - Generate 7–10 interview questions
+    - Generate 5 interview questions
     - Tailor difficulty based on experience level
     - Keep them practical and focused on the core technology.
+    -If a core language is chosen, dont ask framework questions only stick to core language questions
 
   expected_output: >
     Either:

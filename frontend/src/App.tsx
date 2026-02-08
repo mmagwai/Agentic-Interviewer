@@ -6,6 +6,8 @@ import UploadCV from "./components/UploadCV";
 import TechSelector from "./components/TechSelector";
 import Questions from "./components/Questions";
 import CodingChallenge from "./components/CodingChallenge";
+import icon1 from "./assets/images/icon1.png";
+
 
 function App() {
   const [step, setStep] = useState(1);   // STEP CONTROL
@@ -90,6 +92,12 @@ return (
         textAlign: "center",
       }}
     >
+            <img
+        src={icon1}
+        alt="App icon"
+        style={{ width: "100px", }}
+      />
+
       <h1>AI Technical Interviewer</h1>
 
       {/* ================= STEP 1 ================= */}
