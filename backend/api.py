@@ -11,6 +11,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
 from projecttest.analysis_crew import CVAnalysisCrew
 from projecttest.question_crew import QuestionCrew
 from projecttest.utils.file_reader import read_cv_file
+from projecttest.evaluation_crew import EvaluationCrew
 
 
 # =====================================================
@@ -134,3 +135,31 @@ async def generate_questions(
     finally:
         if os.path.exists(temp_path):
             os.remove(temp_path)
+
+@app.post("/evaluate-answer")
+async def evaluate_answer(
+    question: str = Form(...),
+    answer: str = Form(...)
+):
+    crew = EvaluationCrew().crew()
+
+    result = crew.kickoff(
+        inputs={
+            "question": question,
+            "answer": answer
+        }
+    )
+
+    raw = get_task_output(result, "evaluate_answer")
+
+    try:
+        data = json.loads(raw)
+    except:
+        data = {
+            "score": 0,
+            "feedback": "Could not evaluate answer",
+            "correct": False
+        }
+
+    return data
+

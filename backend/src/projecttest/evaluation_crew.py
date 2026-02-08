@@ -3,7 +3,7 @@ from crewai.project import CrewBase, agent, crew, task
 
 
 @CrewBase
-class QuestionCrew:
+class EvaluationCrew:
     agents_config = "config/agents.yaml"
     tasks_config = "config/question_tasks.yaml"
 
@@ -15,17 +15,6 @@ class QuestionCrew:
         )
 
     @task
-    def generate_interview_questions(self) -> Task:
-        return Task(
-            config=self.tasks_config["generate_interview_questions"]
-        )
-
-    # @task
-    # def generate_coding_challenge(self) -> Task:
-    #     return Task(
-    #         config=self.tasks_config["generate_coding_challenge"]
-    #     )
-    @task
     def evaluate_answer(self) -> Task:
         return Task(
             config=self.tasks_config["evaluate_answer"]
@@ -35,9 +24,6 @@ class QuestionCrew:
     def crew(self) -> Crew:
         return Crew(
             agents=[self.interviewer()],
-            tasks=[
-                self.generate_interview_questions()
-                #self.generate_coding_challenge(),
-            ],
+            tasks=[self.evaluate_answer()],
             verbose=True
         )

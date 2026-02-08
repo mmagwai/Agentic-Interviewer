@@ -12,16 +12,54 @@ generate_interview_questions:
     - If not, respond exactly:
       "Selected technology not found in CV."
     - Comparison should be case-insensitive.
+    -  ONLY ask questions about EXACTLY the selected technology.
+    - Example:
+        Java ≠ Spring
+        React ≠ Next.js
+        Python ≠ Django
 
     If valid:
     - Generate 7–10 interview questions
     - Tailor difficulty based on experience level
-    - Keep them practical.
+    - Keep them practical and focused on the core technology.
 
   expected_output: >
     Either:
     - "Selected technology not found in CV."
     OR
     - A numbered list of interview questions.
+
+  agent: interviewer
+
+
+# =============================
+# NEW TASK → SAME LEVEL
+# =============================
+evaluate_answer:
+  description: >
+    You are evaluating a candidate's answer.
+
+    Question:
+    {question}
+
+    Candidate answer:
+    {answer}
+
+    RULES:
+    - Decide if the answer demonstrates basic understanding.
+    - Be realistic for the candidate level
+    - Output ONLY:
+      Correct -> If correct
+      Incorrect - If incorrect
+
+    Keep expectations realistic based on the candidate's experience level.
+
+  expected_output: >
+    JSON:
+    {
+      "score": 0 or 1,
+      "feedback": "short improvement feedback",
+      "correct": true or false
+    }
 
   agent: interviewer

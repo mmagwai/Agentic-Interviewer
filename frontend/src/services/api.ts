@@ -24,3 +24,21 @@ export const startInterviewApi = async (file: File, tech: string) => {
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 };
+
+export const evaluateAnswerApi = async (
+  question: string,
+  answer: string
+) => {
+  const form = new FormData();
+  form.append("question", question);
+  form.append("answer", answer);
+
+  const res = await fetch("http://localhost:8000/evaluate-answer", {
+    method: "POST",
+    body: form,
+  });
+
+  if (!res.ok) throw new Error("Evaluation failed");
+
+  return res.json();
+};

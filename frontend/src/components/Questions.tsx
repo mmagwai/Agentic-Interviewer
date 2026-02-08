@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { evaluateAnswerApi } from "../services/api";
 
 interface Props {
   questions: string[];
@@ -7,16 +8,42 @@ interface Props {
 export default function Questions({ questions }: Props) {
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<string[]>([]);
+  const [grade, setGrade] = useState<any | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [results, setResults] = useState<number[]>([]);
+  const [finalScore, setFinalScore] = useState<number | null>(null);
 
   if (!questions.length) return null;
 
-  const handleNext = () => {
-    if (current < questions.length - 1) {
-      setCurrent(current + 1);
-    } else {
-      alert("Interview finished 🎉");
-      console.log("Answers:", answers);
+  // =====================
+  // Evaluate answer
+  // =====================
+  const handleNext = async () => {
+    const answer = answers[current];
+
+    if (!answer) {
+      alert("Please type an answer");
+      return;
     }
+
+    setLoading(true);
+
+    try {
+      const result = await evaluateAnswerApi(
+        questions[current],
+        answer
+      );
+
+      setGrade(result);
+
+      const copy = [...results];
+      copy[current] = result.score; // 0 or 1
+      setResults(copy);
+    } catch (e) {
+      alert("Failed to evaluate");
+    }
+
+    setLoading(false);
   };
 
   const updateAnswer = (value: string) => {
@@ -24,6 +51,20 @@ export default function Questions({ questions }: Props) {
     copy[current] = value;
     setAnswers(copy);
   };
+
+  // =====================
+  // If interview finished
+  // =====================
+  if (finalScore !== null) {
+    return (
+      <div style={{ marginTop: 40 }}>
+        <h2>Interview Finished 🎉</h2>
+        <p>
+          Final Score: {finalScore} / {questions.length}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div style={{ marginTop: 40 }}>
@@ -41,9 +82,43 @@ export default function Questions({ questions }: Props) {
         onChange={(e) => updateAnswer(e.target.value)}
       />
 
-      <button onClick={handleNext} style={{ marginTop: 10 }}>
-        {current === questions.length - 1 ? "Finish" : "Next"}
-      </button>
+      {loading && <p>Evaluating...</p>}
+
+      {/* =====================
+           SHOW GRADE
+         ===================== */}
+      {grade && (
+        <div style={{ marginTop: 20 }}>
+          <p>Score: {grade.score} / 1</p>
+          <p>{grade.correct ? "Correct" : "Needs improvement"}</p>
+          <p>{grade.feedback}</p>
+
+          <button
+            onClick={() => {
+              setGrade(null);
+
+              if (current < questions.length - 1) {
+                setCurrent(current + 1);
+              } else {
+                const total = results.reduce((a, b) => a + b, 0);
+                setFinalScore(total);
+              }
+            }}
+            style={{ marginTop: 10 }}
+          >
+            Continue
+          </button>
+        </div>
+      )}
+
+      {/* =====================
+           NEXT BUTTON
+         ===================== */}
+      {!grade && (
+        <button onClick={handleNext} style={{ marginTop: 10 }}>
+          {current === questions.length - 1 ? "Finish" : "Next"}
+        </button>
+      )}
     </div>
   );
 }
