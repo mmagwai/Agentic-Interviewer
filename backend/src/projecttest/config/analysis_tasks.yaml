@@ -4,7 +4,7 @@ analyze_cv_task:
     - candidate full name
     - total years of experience
     - experience level (Junior / Intermediate / Senior)
-    - tech stack
+    - tech stack, only if its a core language, framework or library
 
     CV:
     {cv_text}

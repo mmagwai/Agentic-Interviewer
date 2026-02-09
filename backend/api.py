@@ -54,7 +54,7 @@ def get_task_output(result, task_name: str):
 
 
 # =====================================================
-# 1️⃣ ANALYZE CV
+# 1️ ANALYZE CV
 # =====================================================
 @app.post("/analyze-cv")
 async def analyze_cv(file: UploadFile = File(...)):
@@ -80,7 +80,7 @@ async def analyze_cv(file: UploadFile = File(...)):
                 "tech_stack": [],
             }
 
-        # ✅ SAVE FOR PDF
+        # SAVE FOR PDF
         INTERVIEW_CONTEXT["candidate_name"] = data.get("candidate_name", "")
         INTERVIEW_CONTEXT["experience_level"] = data.get("experience_level", "")
 
@@ -92,7 +92,7 @@ async def analyze_cv(file: UploadFile = File(...)):
 
 
 # =====================================================
-# 2️⃣ GENERATE INTERVIEW QUESTIONS
+# 2️ GENERATE INTERVIEW QUESTIONS
 # =====================================================
 @app.post("/questions")
 async def generate_questions(
@@ -130,7 +130,7 @@ async def generate_questions(
             if line:
                 cleaned.append(line)
 
-        # ✅ SAVE FOR PDF
+        # SAVE FOR PDF
         INTERVIEW_CONTEXT["selected_tech"] = selected_tech
         INTERVIEW_CONTEXT["total_questions"] = len(cleaned)
 
@@ -145,7 +145,7 @@ async def generate_questions(
 
 
 # =====================================================
-# 3️⃣ EVALUATE ANSWER
+# 3️ EVALUATE ANSWER
 # =====================================================
 @app.post("/evaluate-answer")
 async def evaluate_answer(
@@ -172,10 +172,10 @@ async def evaluate_answer(
             "correct": False
         }
 
-    # ✅ accumulate score
+    # accumulate score
     INTERVIEW_CONTEXT["interview_score"] += int(data.get("score", 0))
 
-    # ✅ accumulate feedback
+    # accumulate feedback
     INTERVIEW_CONTEXT["interview_feedback"] += (
         f"Q: {question}\n"
         f"A: {answer}\n"
@@ -187,7 +187,7 @@ async def evaluate_answer(
 
 
 # =====================================================
-# 4️⃣ GENERATE CODING CHALLENGE
+# 4️ GENERATE CODING CHALLENGE
 # =====================================================
 @app.post("/coding-challenge")
 async def coding_challenge(
@@ -226,7 +226,7 @@ async def coding_challenge(
 
 
 # =====================================================
-# 5️⃣ GRADE CODE SUBMISSION
+# 5 GRADE CODE SUBMISSION
 # =====================================================
 @app.post("/grade-code")
 async def grade_code(
@@ -263,7 +263,7 @@ async def grade_code(
             }
 
         # ============================================
-        # 🎯 AUTO GENERATE PDF HERE
+        #  AUTO GENERATE PDF HERE
         # ============================================
         output_path = "interview_report.pdf"
 

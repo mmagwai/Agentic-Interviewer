@@ -23,6 +23,7 @@ generate_interview_questions:
     - Tailor difficulty based on experience level
     - Keep them practical and focused on the core technology.
     -If a core language is chosen, dont ask framework questions only stick to core language questions
+    -No practical scenarios, just theory questions.
 
   expected_output: >
     Either:
