@@ -4,7 +4,7 @@ import { gradeCodeApi } from "../services/api";
 
 interface Props {
   challenge: string;
-  language: string; // 👈 comes from earlier selection
+  language: string; 
 }
 
 export default function CodingChallenge({ challenge, language }: Props) {
@@ -25,6 +25,16 @@ export default function CodingChallenge({ challenge, language }: Props) {
     }
     setLoading(false);
   };
+function mapTechToLanguage(tech: string) {
+  const t = tech.toLowerCase();
+
+  if (t.includes("python")) return "python";
+  if (t.includes("javascript") || t.includes("node")) return "javascript";
+  if (t.includes("java")) return "java";
+  if (t.includes("c++") || t.includes("cpp")) return "cpp";
+
+  return "plaintext";
+}
 
   if (result) {
     return (
@@ -50,7 +60,7 @@ export default function CodingChallenge({ challenge, language }: Props) {
       {/* Monaco */}
       <Editor
         height="400px"
-        language={language}  
+        language={mapTechToLanguage(language)}
         value={code}
         onChange={(v) => setCode(v || "")}
         theme="vs-dark"

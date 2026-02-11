@@ -249,5 +249,25 @@ async def grade_code(
     except:
         data = {"score": 0, "verdict": "fail", "feedback": "error"}
 
+    # =====================================================
+    #  CREATE PDF REPORT HERE
+    # =====================================================
+    os.makedirs("reports", exist_ok=True)
+
+    output_path = f"reports/{INTERVIEW_CONTEXT['candidate_name']}_report.pdf"
+
+    generate_report(
+        output_path=output_path,
+        candidate_name=INTERVIEW_CONTEXT["candidate_name"],
+        experience_level=INTERVIEW_CONTEXT["experience_level"],
+        selected_tech=INTERVIEW_CONTEXT["selected_tech"],
+        interview_score=INTERVIEW_CONTEXT["interview_score"],
+        total_questions=INTERVIEW_CONTEXT["total_questions"],
+        coding_result=data,
+        interview_feedback=INTERVIEW_CONTEXT["interview_feedback"],
+    )
+
+    print("Report saved to:", os.path.abspath(output_path))
+
     return data
 
