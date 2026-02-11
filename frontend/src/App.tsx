@@ -132,8 +132,11 @@ return (
       )}
 
       {/* ================= STEP 4 ================= */}
-      {step === 4 && (
-        <CodingChallenge challenge={challenge} />
+      {step === 4 && selectedTech && (
+        <CodingChallenge
+          challenge={challenge}
+          language={selectedTech}
+        />
       )}
     </div>
   </div>

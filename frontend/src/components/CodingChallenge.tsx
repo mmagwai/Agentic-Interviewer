@@ -4,11 +4,11 @@ import { gradeCodeApi } from "../services/api";
 
 interface Props {
   challenge: string;
+  language: string; // 👈 comes from earlier selection
 }
 
-export default function CodingChallenge({ challenge }: Props) {
+export default function CodingChallenge({ challenge, language }: Props) {
   const [code, setCode] = useState("// write your solution here");
-  const [language, setLanguage] = useState("python");
   const [result, setResult] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -47,26 +47,15 @@ export default function CodingChallenge({ challenge }: Props) {
         {challenge}
       </pre>
 
-      {/* Language */}
-      <select
-        value={language}
-        onChange={(e) => setLanguage(e.target.value)}
-        style={{ marginBottom: 10 }}
-      >
-        <option value="python">Python</option>
-        <option value="javascript">JavaScript</option>
-        <option value="cpp">C++</option>
-        <option value="java">Java</option>
-      </select>
-
       {/* Monaco */}
       <Editor
         height="400px"
-        language={language}
+        language={language}  
         value={code}
         onChange={(v) => setCode(v || "")}
         theme="vs-dark"
       />
+
       <button onClick={submit} className="primaryButton">
         Submit
       </button>
