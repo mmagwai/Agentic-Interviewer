@@ -15,7 +15,7 @@ from projecttest.evaluation_crew import EvaluationCrew
 from projecttest.grading_crew import GradingCrew
 from projecttest.challenge_crew import ChallengeCrew
 from projecttest.utils.pdf_report import generate_report
-
+from projecttest.tools.mcp_runner import MCPRunner
 
 # =====================================================
 # APP
@@ -231,55 +231,41 @@ async def coding_challenge(
 @app.post("/grade-code")
 async def grade_code(
     problem: str = Form(...),
-    file: UploadFile = File(...)
+    code: str = Form(...),
+    output: str = Form(...)
 ):
-    temp_path = f"temp_{file.filename}"
+    crew = GradingCrew().crew()
+
+    result = crew.kickoff(
+        inputs={
+            "problem": problem,
+            "candidate_code": code,
+            "execution_output": output
+        }
+    )
+
+    raw = get_task_output(result, "grade_coding_solution")
 
     try:
-        with open(temp_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+        data = json.loads(raw)
+    except:
+        data = {"score": 0, "verdict": "fail", "feedback": "error"}
 
-        with open(temp_path, "r", encoding="utf-8", errors="ignore") as f:
-            candidate_code = f.read()
+    return data
 
-        crew = GradingCrew().crew()
+#================================#
+# RUN CODE#
+#===============================#
 
-        result = crew.kickoff(
-            inputs={
-                "problem": problem,
-                "candidate_code": candidate_code
-            }
-        )
 
-        raw = get_task_output(result, "grade_coding_solution")
+@app.post("/run-code")
+async def run_code(
+    language: str = Form(...),
+    code: str = Form(...)
+):
+    runner = MCPRunner()
+    output = runner._run(language, code)
+    print("LANG:", language)
+    print("CODE RECEIVED:\n", code)
 
-        try:
-            data = json.loads(raw)
-        except:
-            data = {
-                "score": 0,
-                "verdict": "fail",
-                "feedback": "Could not evaluate code"
-            }
-
-        # ============================================
-        #  AUTO GENERATE PDF HERE
-        # ============================================
-        output_path = "interview_report.pdf"
-
-        generate_report(
-            output_path=output_path,
-            candidate_name=INTERVIEW_CONTEXT["candidate_name"],
-            experience_level=INTERVIEW_CONTEXT["experience_level"],
-            selected_tech=INTERVIEW_CONTEXT["selected_tech"],
-            interview_score=INTERVIEW_CONTEXT["interview_score"],
-            total_questions=INTERVIEW_CONTEXT["total_questions"],
-            coding_result=data,
-            interview_feedback=INTERVIEW_CONTEXT["interview_feedback"],
-        )
-
-        return data
-
-    finally:
-        if os.path.exists(temp_path):
-            os.remove(temp_path)
+    return {"output": output}

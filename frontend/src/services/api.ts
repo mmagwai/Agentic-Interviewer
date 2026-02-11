@@ -66,17 +66,34 @@ export const getCodingChallengeApi = async (
 
 export const gradeCodeApi = async (
   problem: string,
-  file: File
+  code: string,
+  output: string
 ) => {
   const form = new FormData();
   form.append("problem", problem);
-  form.append("file", file);
+  form.append("code", code);
+  form.append("output", output);
 
   const res = await fetch("http://localhost:8000/grade-code", {
     method: "POST",
     body: form,
   });
 
-  if (!res.ok) throw new Error("Grading failed");
+  return res.json();
+};
+
+export const runCodeApi = async (
+  language: string,
+  code: string
+) => {
+  const form = new FormData();
+  form.append("language", language);
+  form.append("code", code);
+
+  const res = await fetch("http://localhost:8000/run-code", {
+    method: "POST",
+    body: form,
+  });
+
   return res.json();
 };
