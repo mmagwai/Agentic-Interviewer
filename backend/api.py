@@ -15,7 +15,7 @@ from projecttest.evaluation_crew import EvaluationCrew
 from projecttest.grading_crew import GradingCrew
 from projecttest.challenge_crew import ChallengeCrew
 from projecttest.utils.pdf_report import generate_report
-from projecttest.tools.mcp_runner import MCPRunner
+
 
 # =====================================================
 # APP
@@ -232,7 +232,6 @@ async def coding_challenge(
 async def grade_code(
     problem: str = Form(...),
     code: str = Form(...),
-    output: str = Form(...)
 ):
     crew = GradingCrew().crew()
 
@@ -240,7 +239,6 @@ async def grade_code(
         inputs={
             "problem": problem,
             "candidate_code": code,
-            "execution_output": output
         }
     )
 
@@ -253,19 +251,3 @@ async def grade_code(
 
     return data
 
-#================================#
-# RUN CODE#
-#===============================#
-
-
-@app.post("/run-code")
-async def run_code(
-    language: str = Form(...),
-    code: str = Form(...)
-):
-    runner = MCPRunner()
-    output = runner._run(language, code)
-    print("LANG:", language)
-    print("CODE RECEIVED:\n", code)
-
-    return {"output": output}

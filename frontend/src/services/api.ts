@@ -81,19 +81,3 @@ export const gradeCodeApi = async (
 
   return res.json();
 };
-
-export const runCodeApi = async (
-  language: string,
-  code: string
-) => {
-  const form = new FormData();
-  form.append("language", language);
-  form.append("code", code);
-
-  const res = await fetch("http://localhost:8000/run-code", {
-    method: "POST",
-    body: form,
-  });
-
-  return res.json();
-};

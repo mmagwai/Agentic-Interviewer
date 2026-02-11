@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Editor from "@monaco-editor/react";
-import { runCodeApi, gradeCodeApi } from "../services/api";
+import { gradeCodeApi } from "../services/api";
 
 interface Props {
   challenge: string;
@@ -9,29 +9,16 @@ interface Props {
 export default function CodingChallenge({ challenge }: Props) {
   const [code, setCode] = useState("// write your solution here");
   const [language, setLanguage] = useState("python");
-  const [output, setOutput] = useState("");
   const [result, setResult] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
 
   if (!challenge) return null;
 
-  // ================= RUN =================
-  const run = async () => {
-    setLoading(true);
-    try {
-      const res = await runCodeApi(language, code);
-      setOutput(res.output);
-    } catch {
-      setOutput("Execution failed");
-    }
-    setLoading(false);
-  };
-
   // ================= SUBMIT =================
   const submit = async () => {
     setLoading(true);
     try {
-      const res = await gradeCodeApi(challenge, code, output);
+      const res = await gradeCodeApi(challenge, code, "");
       setResult(res);
     } catch {
       alert("Grading failed");
@@ -80,19 +67,9 @@ export default function CodingChallenge({ challenge }: Props) {
         onChange={(v) => setCode(v || "")}
         theme="vs-dark"
       />
-
-      <button onClick={run} className="primaryButton">
-        Run Code
-      </button>
-
       <button onClick={submit} className="primaryButton">
         Submit
       </button>
-
-      <h3>Output</h3>
-      <pre style={{ background: "#000", color: "#0f0", padding: 10 }}>
-        {output}
-      </pre>
 
       {loading && <p>Working...</p>}
     </div>
