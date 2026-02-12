@@ -8,17 +8,16 @@ interface Props {
 
 export default function UploadCV({ loading, onFileChange, onUpload }: Props) {
   return (
-    <div className="uploadContainer">
-      <h2 className="uploadTitle">Upload your CV</h2>
+    <div>
+      <h2>Upload your CV</h2>
 
-      <p className="uploadSubtitle">
+      <p>
         Supported formats: PDF, DOC, DOCX, TXT
       </p>
 
       {/* INLINE ROW */}
-      <div className="uploadRow">
+      <div className="inlineRow">
         <input
-          className="fileInput"
           type="file"
           accept=".pdf,.doc,.docx,.txt"
           onChange={(e) =>
@@ -27,9 +26,9 @@ export default function UploadCV({ loading, onFileChange, onUpload }: Props) {
         />
 
         <button
-          className="primaryButton"
           onClick={onUpload}
           disabled={loading}
+          className="primaryButton"
         >
           {loading ? "Analyzing..." : "Upload CV"}
         </button>

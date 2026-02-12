@@ -38,7 +38,7 @@ function mapTechToLanguage(tech: string) {
 
   if (result) {
     return (
-      <div style={{ marginTop: 40 }}>
+      <div className="section">
         <h2>Challenge Result</h2>
         <div className="gradeCard">
           <p>Score: {result.score}</p>
@@ -50,16 +50,17 @@ function mapTechToLanguage(tech: string) {
   }
 
   return (
-    <div style={{ marginTop: 40 }}>
+    <div className="section">
       <h2>Coding Challenge</h2>
 
-      <pre style={{ background: "#111", color: "#0f0", padding: 10 }}>
+      <pre style={{ background: "#111", color: "#0f0"}}>
         {challenge}
       </pre>
 
       {/* Monaco */}
       <Editor
-        height="400px"
+        height="45vh"
+        width="100%"
         language={mapTechToLanguage(language)}
         value={code}
         onChange={(v) => setCode(v || "")}

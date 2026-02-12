@@ -75,32 +75,11 @@ function App() {
   };
 
 return (
-  <div
-    style={{
-      minHeight: "100vh",
-      display: "flex",
-      justifyContent: "center",   // horizontal
-      alignItems: "center",       // vertical
-      flexDirection: "column",
-      paddingLeft: 400,
-    }}
-  >
-    <div
-      style={{
-        width: "100%",
-        maxWidth: 800,
-        textAlign: "center",
-      }}
-    >
-            <img
-        src={icon1}
-        alt="App icon"
-        style={{ width: "100px", }}
-      />
-
+  <div className="app">
+    <div className="container">
+      <img src={icon1} alt="App icon" className="logo" />
       <h1>AI Technical Interviewer</h1>
 
-      {/* ================= STEP 1 ================= */}
       {step === 1 && (
         <UploadCV
           loading={loading}
@@ -109,11 +88,10 @@ return (
         />
       )}
 
-      {/* ================= STEP 2 ================= */}
       {step === 2 && candidate && (
         <>
           <h2>{candidate.candidate_name}</h2>
-          <p>Level: {candidate.experience_level}</p>
+          <p className="muted">Level: {candidate.experience_level}</p>
 
           <TechSelector
             techs={candidate.tech_stack}
@@ -123,7 +101,6 @@ return (
         </>
       )}
 
-      {/* ================= STEP 3 ================= */}
       {step === 3 && (
         <Questions
           questions={questions}
@@ -131,7 +108,6 @@ return (
         />
       )}
 
-      {/* ================= STEP 4 ================= */}
       {step === 4 && selectedTech && (
         <CodingChallenge
           challenge={challenge}
@@ -141,6 +117,7 @@ return (
     </div>
   </div>
 );
+
 
 }
 

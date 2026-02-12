@@ -61,7 +61,7 @@ export default function Questions({ questions, onFinish }: Props) {
   // =====================
   if (finalScore !== null) {
     return (
-      <div className="questionsContainer">
+      <div>
         <h2>Interview Finished 🎉</h2>
         <p>
           Final Score: {finalScore} / {questions.length}
@@ -71,11 +71,11 @@ export default function Questions({ questions, onFinish }: Props) {
   }
 
   return (
-    <div className="questionsContainer">
+    <div>
       {/* =====================
           QUESTION BLOCK
          ===================== */}
-      <div key={current} className="questionBlock">
+      <div key={current}>
         <h3>
           Question {current + 1} of {questions.length}
         </h3>
@@ -84,7 +84,6 @@ export default function Questions({ questions, onFinish }: Props) {
 
         <textarea
           rows={6}
-          className="answerInput"
           placeholder="Type your answer here..."
           value={answers[current] || ""}
           onChange={(e) => updateAnswer(e.target.value)}
@@ -102,13 +101,12 @@ export default function Questions({ questions, onFinish }: Props) {
             <b>Score:</b> {grade.score} / 1
           </p>
 
-          <div className="gradeCard">
+          <div>
             <p>{grade.correct ? "Correct" : "Needs improvement"}</p>
             <p>{grade.feedback}</p>
           </div>
 
           <button
-            className="primaryButton"
             onClick={() => {
               setGrade(null);
 
@@ -131,7 +129,6 @@ export default function Questions({ questions, onFinish }: Props) {
          ===================== */}
       {!grade && (
         <button
-          className="primaryButton"
           onClick={handleNext}
           disabled={loading}
         >
