@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Candidate } from "./types/candidate";
 import { analyzeCV, startInterviewApi, getCodingChallengeApi } from "./services/api";
 
@@ -8,9 +8,8 @@ import Questions from "./components/Questions";
 import CodingChallenge from "./components/CodingChallenge";
 import icon1 from "./assets/images/icon1.png";
 
-
 function App() {
-  const [step, setStep] = useState(1);   // STEP CONTROL
+  const [step, setStep] = useState(1);
 
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -19,26 +18,28 @@ function App() {
   const [questions, setQuestions] = useState<string[]>([]);
   const [challenge, setChallenge] = useState("");
 
-  // =============================
-  // STEP 1 → Upload CV
-  // =============================
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  // auto scroll when step changes
+  useEffect(() => {
+    contentRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [step]);
+
+  // ================= STEP 1
   const handleUpload = async () => {
     if (!file) return;
-
     setLoading(true);
     try {
       const data = await analyzeCV(file);
       setCandidate(data);
-      setStep(2);   // move to tech selection
+      setStep(2);
     } catch (err: any) {
       alert(err.message);
     }
     setLoading(false);
   };
 
-  // =============================
-  // STEP 2 → Choose Tech
-  // =============================
+  // ================= STEP 2
   const startInterview = async (tech: string) => {
     if (!file) return;
 
@@ -48,15 +49,13 @@ function App() {
     try {
       const data = await startInterviewApi(file, tech);
       setQuestions(data.questions || []);
-      setStep(3);   // move to questions
-    } catch (err) {
+      setStep(3);
+    } catch {
       alert("Failed to start interview");
     }
   };
 
-  // =============================
-  // STEP 3 → Interview Finished
-  // =============================
+  // ================= STEP 3
   const handleInterviewFinish = async () => {
     if (!selectedTech || !candidate || !file) return;
 
@@ -68,57 +67,86 @@ function App() {
       );
 
       setChallenge(challengeData.challenge || "");
-      setStep(4);   // move to coding challenge
-    } catch (err) {
+      setStep(4);
+    } catch {
       alert("Failed to load coding challenge");
     }
   };
 
-return (
-  <div className="app">
-    <div className="container">
-      <img src={icon1} alt="App icon" className="logo" />
-      <h1>AI Technical Interviewer</h1>
+  return (
+    <div className="app">
+      {/* ================= HEADER ================= */}
+      <div className="header">
+        <div className="headerInner">
+          <img src={icon1} className="logoSmall" />
+          <div className="brand">AI Technical Interviewer</div>
+        </div>
+      </div>
 
-      {step === 1 && (
-        <UploadCV
-          loading={loading}
-          onFileChange={setFile}
-          onUpload={handleUpload}
-        />
-      )}
+      <div className="container" ref={contentRef}>
+        {/* ================= STEPPER ================= */}
+        <Stepper step={step} />
 
-      {step === 2 && candidate && (
-        <>
-          <h2>{candidate.candidate_name}</h2>
-          <p className="muted">Level: {candidate.experience_level}</p>
+        {/* ================= CONTENT ================= */}
+        <div className="fadeIn">
+          {step === 1 && (
+            <UploadCV
+              loading={loading}
+              onFileChange={setFile}
+              onUpload={handleUpload}
+            />
+          )}
 
-          <TechSelector
-            techs={candidate.tech_stack}
-            selected={selectedTech}
-            onSelect={startInterview}
-          />
-        </>
-      )}
+          {step === 2 && candidate && (
+            <div className="section">
+              <h2>{candidate.candidate_name}</h2>
+              <p className="muted">Level: {candidate.experience_level}</p>
 
-      {step === 3 && (
-        <Questions
-          questions={questions}
-          onFinish={handleInterviewFinish}
-        />
-      )}
+              <TechSelector
+                techs={candidate.tech_stack}
+                selected={selectedTech}
+                onSelect={startInterview}
+              />
+            </div>
+          )}
 
-      {step === 4 && selectedTech && (
-        <CodingChallenge
-          challenge={challenge}
-          language={selectedTech}
-        />
-      )}
+          {step === 3 && (
+            <Questions
+              questions={questions}
+              onFinish={handleInterviewFinish}
+            />
+          )}
+
+          {step === 4 && selectedTech && (
+            <CodingChallenge challenge={challenge} language={selectedTech} />
+          )}
+        </div>
+      </div>
     </div>
-  </div>
-);
-
-
+  );
 }
 
 export default App;
+
+/* ================= STEPPER ================= */
+
+function Stepper({ step }: { step: number }) {
+  const steps = ["Upload CV", "Select Tech", "Interview", "Coding"];
+
+  return (
+    <div className="stepper">
+      {steps.map((s, i) => {
+        const index = i + 1;
+        return (
+          <div
+            key={s}
+            className={`step ${step >= index ? "active" : ""}`}
+          >
+            <div className="circle">{index}</div>
+            <span>{s}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}

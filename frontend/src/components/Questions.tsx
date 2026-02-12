@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { evaluateAnswerApi } from "../services/api";
 import "../App.css";
+import { FaMicrophone, FaStop } from "react-icons/fa";
 
 interface Props {
   questions: string[];
@@ -14,12 +15,89 @@ export default function Questions({ questions, onFinish }: Props) {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<number[]>([]);
   const [finalScore, setFinalScore] = useState<number | null>(null);
+  const [listening, setListening] = useState(false);
+
+  const recognitionRef = useRef<any>(null);
+  const manuallyStopped = useRef(false);
+
+  // persistent text memory
+  const finalTranscriptRef = useRef("");
+
+  useEffect(() => {
+    // stop recording if user goes next
+    manuallyStopped.current = true;
+    recognitionRef.current?.stop();
+    setListening(false);
+
+    // clear speech memory
+    finalTranscriptRef.current = "";
+  }, [current]);
 
   if (!questions.length) return null;
 
   // =====================
   // Evaluate answer
   // =====================
+  const SpeechRecognition =
+    (window as any).SpeechRecognition ||
+    (window as any).webkitSpeechRecognition;
+
+  const startListening = () => {
+    if (!SpeechRecognition) {
+      alert("Speech recognition not supported in this browser");
+      return;
+    }
+
+    manuallyStopped.current = false;
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.interimResults = true;
+    recognition.continuous = true;
+
+    recognition.onresult = (event: any) => {
+      let interim = "";
+      let finalPart = "";
+
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const text = event.results[i][0].transcript;
+
+        if (event.results[i].isFinal) {
+          finalPart += text;
+        } else {
+          interim += text;
+        }
+      }
+
+      // append only finalized speech to memory
+      if (finalPart) {
+        finalTranscriptRef.current += finalPart + " ";
+      }
+
+      // show final + live
+      const fullText = finalTranscriptRef.current + interim;
+      updateAnswer(fullText);
+    };
+
+    // restart unless user pressed stop
+    recognition.onend = () => {
+      if (!manuallyStopped.current) {
+        recognition.start();
+      }
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+    setListening(true);
+  };
+
+  const stopListening = () => {
+    manuallyStopped.current = true;
+    recognitionRef.current?.stop();
+    setListening(false);
+  };
+
+
   const handleNext = async () => {
     const answer = answers[current];
 
@@ -88,6 +166,24 @@ export default function Questions({ questions, onFinish }: Props) {
           value={answers[current] || ""}
           onChange={(e) => updateAnswer(e.target.value)}
         />
+        <div className="voiceRow">
+          {!listening ? (
+            <button type="button" onClick={startListening} className="micButton">
+              <FaMicrophone />
+            </button>
+          ) : (
+            <button type="button" onClick={stopListening} className="micButton recording">
+              <FaStop />
+            </button>
+          )}
+
+          <span className="muted">
+            {listening ? "Recording... press stop when finished" : "Answer with your voice"}
+          </span>
+        </div>
+
+
+
       </div>
 
       {loading && <p>Evaluating...</p>}
